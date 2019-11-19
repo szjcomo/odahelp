@@ -16,6 +16,8 @@ use szjcomo\szjcore\Mysql 								as AppMysql;
 use szjcomo\odaHelp\Fields 								as AppFields;
 use szjcomo\odaHelp\Beans 								as AppBeans;
 use szjcomo\odaHelp\Service 							as AppService;
+use EasySwoole\Component\Di;
+use EasySwoole\EasySwoole\SysConst;
 
 /**
  * 自定义命令的实现
@@ -62,6 +64,19 @@ class Szjkj implements EasySwooleCommandInterface
 			call_user_func([&$this,$command],$param);
 		}
 	}
+	/**
+	 * [parseNamespace 分析命名空间]
+	 * @author 	   szjcomo
+	 * @createTime 2019-11-19
+	 * @return     [type]     [description]
+	 */
+	protected function parseNamespace()
+	{
+		$namespace = Di::getInstance()->get(SysConst::HTTP_CONTROLLER_NAMESPACE);
+		if(empty($namespace)) return 'Application';
+		return 'app';
+	}
+
 
 	/**
 	 * [service 执行service命令参数]
@@ -79,14 +94,15 @@ class Szjkj implements EasySwooleCommandInterface
 			echo "\e[31m ".'['.date('Y-m-d').' 数据表不存在,请检查]'.PHP_EOL;
 			return;
 		}
+		$appRoot = $this->parseNamespace();
 		$beanName = $this->BeanClassName($tableName);
-		if(!file_exists('app/models/'.$beanName.'.php')){
+		if(!file_exists($appRoot.'/models/'.$beanName.'.php')){
 			$this->bean($tableName,$result);
 		}
 		$beanclass = '\app\models\\'.$beanName;
 		$serviceObj = new AppService(new $beanclass,$beanName,$result,$tableName);
 		$template = $serviceObj->addServiceTemplate();
-		$savepath = 'app/service/'.$beanName.'.php';
+		$savepath = $appRoot.'/service/'.$beanName.'.php';
 		$bool = $this->saveServiceFile($template,$savepath);
 		if($bool) {
 			echo "\e[32m ".'['.date('Y-m-d')." ".$savepath." generate successful \e[0m ".']'.PHP_EOL;
@@ -169,7 +185,8 @@ class Szjkj implements EasySwooleCommandInterface
 	 */
 	protected function setBeanClass(array $result,$beanName)
 	{
-		$savepath = 'app/models/'.$beanName.'.php';
+		$appRoot = $this->parseNamespace();
+		$savepath = $appRoot.'/models/'.$beanName.'.php';
 		$beanarr = [];
 		foreach($result as $key=>$val){
 			$fields = new AppFields($val);
