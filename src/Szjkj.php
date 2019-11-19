@@ -16,8 +16,6 @@ use szjcomo\szjcore\Mysql 								as AppMysql;
 use szjcomo\odaHelp\Fields 								as AppFields;
 use szjcomo\odaHelp\Beans 								as AppBeans;
 use szjcomo\odaHelp\Service 							as AppService;
-use EasySwoole\Component\Di;
-use EasySwoole\EasySwoole\SysConst;
 
 /**
  * 自定义命令的实现
@@ -72,8 +70,14 @@ class Szjkj implements EasySwooleCommandInterface
 	 */
 	protected function parseNamespace()
 	{
-		$namespace = Di::getInstance()->get(SysConst::HTTP_CONTROLLER_NAMESPACE);
-		if(empty($namespace)) return 'Application';
+		$composerEnv = file_get_contents(EASYSWOOLE_ROOT.'/composer.json');
+		$arr = json_decode($composerEnv,true);
+		if(!empty($arr['autoload']['psr-4']['app\\'])){
+			return $arr['autoload']['psr-4']['app\\'];
+		}
+		if(!empty($arr['autoload']['psr-4']['App\\'])){
+			return $arr['autoload']['psr-4']['App\\'];
+		}
 		return 'app';
 	}
 
