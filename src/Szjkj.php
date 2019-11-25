@@ -88,7 +88,7 @@ class Szjkj implements EasySwooleCommandInterface
 	 * @param      string     $tableName [description]
 	 * @return     [type]                [description]
 	 */
-	protected function controller(string $param)
+	protected function ctr(string $param)
 	{
 		if(empty($param)) return '参数不能为空';
 		list($module,$tableName) = explode('/', $param);
@@ -96,8 +96,8 @@ class Szjkj implements EasySwooleCommandInterface
 		$controllerName = $this->BeanClassName($tableName);
 		$savepath = $this->parseNamespace().'controllers/'.$module.'/'.$controllerName.'.php';
 		if(file_exists($savepath)){
-			//echo "\e[31m ".'['.date('Y-m-d').$savepath.'控制器已经存在 \e[0m ]'.PHP_EOL;
-			//return ;
+			echo "\e[31m ".'['.date('Y-m-d').$savepath.'控制器已经存在 \e[0m ]'.PHP_EOL;
+			return ;
 		}
 		$appRoot = $this->parseNamespace();
 		if(!file_exists($appRoot.'/models/'.$controllerName.'.php')){
@@ -260,6 +260,7 @@ class Szjkj implements EasySwooleCommandInterface
 \e[33mArg:\e[0m
 \e[32m  service \e[0m              快速生成service数据库操作 示例用法:\e[31mservice=szj_admin(表名称)\e[0m
 \e[32m  bean \e[0m                 快速生成数据表结构 示例用法:\e[31mbean=szj_admin(表名称)\e[0m
+\e[32m  ctr \e[0m                 快速生成控制器结构 示例用法:\e[31mctr=Admin/szj_admin(表名称)\e[0m
 HELP_START;
 	}
 }
