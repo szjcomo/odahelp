@@ -16,6 +16,7 @@ use szjcomo\szjcore\Mysql 								as AppMysql;
 use szjcomo\odaHelp\Fields 								as AppFields;
 use szjcomo\odaHelp\Beans 								as AppBeans;
 use szjcomo\odaHelp\Service 							as AppService;
+use szjcomo\odaHelp\Controller 							as AppController;
 
 /**
  * 自定义命令的实现
@@ -80,6 +81,41 @@ class Szjkj implements EasySwooleCommandInterface
 		}
 		return 'app';
 	}
+	/**
+	 * [controller 自动生成数据表的控制器]
+	 * @author 	   szjcomo
+	 * @createTime 2019-11-23
+	 * @param      string     $tableName [description]
+	 * @return     [type]                [description]
+	 */
+	protected function controller(string $param)
+	{
+		if(empty($param)) return '参数不能为空';
+		list($module,$tableName) = explode('/', $param);
+		if(empty($module) || empty($tableName)) return '参数错误';
+		$controllerName = $this->BeanClassName($tableName);
+		$savepath = $this->parseNamespace().'controllers/'.$module.'/'.$controllerName.'.php';
+		if(file_exists($savepath)){
+			//echo "\e[31m ".'['.date('Y-m-d').$savepath.'控制器已经存在 \e[0m ]'.PHP_EOL;
+			//return ;
+		}
+		$appRoot = $this->parseNamespace();
+		if(!file_exists($appRoot.'/models/'.$controllerName.'.php')){
+			echo "\e[31m ".'['.date('Y-m-d').'模型不存在,不能生成控制器 \e[0m ]'.PHP_EOL;
+			return ;
+		}
+		$sql = 'show full fields from '.$tableName;
+		$result = AppMysql::DB()->rawQuery($sql,[]);
+		if(empty($result)) {
+			echo "\e[31m ".'['.date('Y-m-d').' 数据表不存在,请检查 \e[0m]'.PHP_EOL;
+			return;
+		}
+		$beanclass = '\app\models\\'.$controllerName;
+		$controllerObj = new AppController(new $beanclass,$controllerName,$result,$tableName,$module);
+		$template = $controllerObj->addControllerTemplate();
+		$this->saveServiceFile($template,$savepath);
+		echo $savepath.PHP_EOL;
+	}
 
 
 	/**
@@ -95,7 +131,7 @@ class Szjkj implements EasySwooleCommandInterface
 		$sql = 'show full fields from '.$tableName;
 		$result = AppMysql::DB()->rawQuery($sql,[]);
 		if(empty($result)) {
-			echo "\e[31m ".'['.date('Y-m-d').' 数据表不存在,请检查]'.PHP_EOL;
+			echo "\e[31m ".'['.date('Y-m-d').' 数据表不存在,请检查 \e[0m]'.PHP_EOL;
 			return;
 		}
 		$appRoot = $this->parseNamespace();
