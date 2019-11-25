@@ -7,6 +7,7 @@
 | ------------ | ------------ | ------------ | ------------ |
 | szjkj  | service  | 表名称(szj_admin)  | service依赖models 如果models下没有Admin.php则先生成models下Admin.php，然后再生成service下的Admin.php  |
 | szjkj | bean  | 表名称(szj_admin)  | 可单独生成models下Admin.php  |
+| szjkj | ctr  | 模块名/表名称(szj_admin)  | 可单独生成Controllers下Admin.php,如果存在则不能生成  |
 
 ### 注意事项
 - 必须要先配置好数据库配置项
